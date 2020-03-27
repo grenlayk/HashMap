@@ -1,5 +1,5 @@
-#ifndef HASH_TABLE_
-#define HASH_TABLE_
+#ifndef HASH_MAP_H_
+#define HASH_MAP_H_
 
 #include <vector>
 #include <list>
@@ -18,9 +18,8 @@ public:
 private:
     const size_t kMinSize = 15;
     const size_t kMult = 2;
-    std::vector<std::list<
-        typename std::list<std::pair<const KeyType, ValueType>>::iterator>> values_;
-    std::list<std::pair<const KeyType, ValueType>> all_;
+    std::vector<std::list<iterator>> values_;
+    std::list<object_type> all_;
     Hash hasher_;
     size_t elem_num_;
     size_t mod_;
@@ -81,8 +80,9 @@ public:
 
     iterator insert(object_type value) {
         auto elem_it = find(value.first);
-        if (elem_it != end())
+        if (elem_it != end()) {
             return elem_it;
+        }
 
         size_t idx = hasher_(value.first) % mod_;
         all_.push_front(value);
@@ -110,6 +110,14 @@ public:
         }
     }
 
+    const_iterator begin() const noexcept {
+        return const_cast<HashMap*>(this)->begin();
+    }
+
+    const_iterator end() const noexcept {
+        return const_cast<HashMap*>(this)->end();
+    }
+
     iterator begin() noexcept {
         return all_.begin();
     }
@@ -117,18 +125,11 @@ public:
     iterator end() noexcept {
         return all_.end();
     }
-
-    const_iterator begin() const noexcept {
-        return all_.begin();
-    }
-
-    const_iterator end() const noexcept {
-        return all_.end();
-    }
+    
 
     iterator find(const KeyType &key) {
         size_t idx = hasher_(key) % mod_;
-        for (auto&& elem : values_[idx]) {
+        for (const auto& elem : values_[idx]) {
             if (elem->first == key) {
                 return elem;
             }
@@ -137,13 +138,7 @@ public:
     }
 
     const_iterator find(const KeyType &key) const {
-        size_t idx = hasher_(key) % mod_;
-        for (auto&& elem : values_[idx]) {
-            if (elem->first == key) {
-                return elem;
-            }
-        }
-        return end();
+        return const_cast<HashMap*>(this)->find(key);
     }
 
     ValueType& operator[](const KeyType key) {
@@ -179,5 +174,5 @@ public:
     }
 };
 
-#endif  // HASH_TABLE_
+#endif  // HASH_MAP_H_
 
